@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>AuraMeet | Ephemeral Chat</title>
+    <meta name="description" content="AuraMeet is a secure, zero-log ephemeral chat platform built by Arnav Pundir. Our motive is simple: not everything needs to be saved forever.">
+    <meta property="og:title" content="AuraMeet | Ephemeral Chat">
+    <meta property="og:description" content="AuraMeet is a secure, zero-log ephemeral chat platform built by Arnav Pundir. Our motive is simple: not everything needs to be saved forever.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://baatcheet-88e9.onrender.com/">
+    <meta property="og:image" content="https://baatcheet-88e9.onrender.com/static/banner.png">
+    <link rel="stylesheet" href="/static/css/style.css?v=14">
+    <link rel="stylesheet" href="/static/css/mobile.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+</head>
+
+
+<body>
+    <!-- Cinematic Overlay -->
+    <div id="cinematic-overlay">
+        <div id="cinematic-canvas-container"></div>
+        <div class="cinematic-hud" id="cinematic-hud-booting">
+            <div class="glitch-spinner" style="margin-bottom: 20px;"></div>
+            <h2 class="font-mono">[SYS.INIT] > BOOTING ENVIRONMENT...</h2>
+            <p class="font-mono" style="color: var(--primary);">Establishing secure connection.</p>
+        </div>
+        <div class="cinematic-hud" id="cinematic-hud-welcome" style="display: none; opacity: 0; transform: scale(0.9); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+            <h1 class="logo-title cinematic-title" style="font-size: clamp(3rem, 15vw, 6rem);">AuraMeet</h1>
+            <p class="font-mono" style="letter-spacing: 5px; color: var(--secondary);">ACCESS GRANTED</p>
+        </div>
+    </div>
+
+    <div class="wireframe-grid"></div>
+    <div id="home-3d-canvas-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></div>
+
+    <div class="container index-container" style="max-width: 1200px; padding: 4rem 2rem; display: block;">
+        <nav class="landing-nav">
+
+            <a href="/about" class="nav-link"> About Platform </a>
+            <a href="https://github.com/ArnavPundir22/BaatCheet" target="_blank" class="nav-link">  GitHub Source </a> 
+            <button id="installNowBtn" class="install-nav-btn"> Install Now </button>
+        </nav>
+        <!-- MOBILE HAMBURGER -->
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="mobile-panel" id="mobilePanel">
+            <div class="mobile-panel-header">
+                <h3>AuraMeet</h3>
+            </div>
+            <a href="/about" class="mobile-panel-link">
+                About Platform
+            </a>
+            <a href="https://github.com/ArnavPundir22/AuraMeet"
+                target="_blank"
+                class="mobile-panel-link">
+                    GitHub Source
+            </a>
+
+            <button class="mobile-install-btn" onclick="document.getElementById('install-modal').style.display='flex'"> Install Now </button>
+        </div>
+                              
+
+        <section class="landing-layout">
+        <div class="landing-left">
+         <div style="text-align: center; margin-bottom: 4rem;">
+             <h1 class="logo-title"
+                style="font-size: clamp(2.5rem, 12vw, 5rem); margin-bottom: 0;">
+                AuraMeet Edu
+            </h1>
+
+            <p class="subtitle font-mono"
+                style="letter-spacing: 1px; font-size: clamp(0.75rem, 3vw, 1rem); text-transform: uppercase; margin-top: 10px;">
+                    AI-POWERED INCLUSIVE VIDEO CLASSROOM SYSTEM
+            </p>
+            <div class="sdg-badge-container" style="justify-content: center; margin-top: 10px;">
+                <span class="sdg-badge sdg-badge-edu">HACKN'TECH 10.0</span>
+                <span class="sdg-badge sdg-badge-edu">SDG 4: Quality Edu</span>
+                <span class="sdg-badge sdg-badge-inc">SDG 10: Reduced Inequality</span>
+            </div>
+        </div> 
+
+    </div> 
+
+<div class="landing-right">
+    <div class="card-stack">
+        <div class="stack-shadow stack-shadow-1"></div>
+        <div class="stack-shadow stack-shadow-2"></div>
+
+        <!-- Room Creation (Spans 2 columns on desktop) -->
+        <div id="createCard" class="stack-card active-stack-card">
+
+            <div class="card--border-glow">
+
+                <h3 class="font-mono" style="color: var(--primary); margin-bottom: 1rem;">
+                    [SYS.INIT] > New Session
+                </h3>
+
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                    Initialize a fresh, secure, disposable environment.
+                </p>
+
+                <form action="/" method="POST">
+
+                    <div class="input-group">
+                        <label for="hero_username" class="font-mono">
+                            User Identity
+                        </label>
+
+                        <input type="text" id="hero_username" name="username" placeholder="Enter operator alias" required autocomplete="off">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="hero_room_name" class="font-mono">
+                            Environment Designation (Optional)
+                        </label>
+
+                        <input type="text" id="hero_room_name" name="room_name" placeholder="Assign room title" autocomplete="off">
+                    </div>
+
+                    <button type="submit" name="action" value="create" class="btn btn-primary font-mono" style="text-transform: uppercase;"> Execute: Create Room </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- JOIN ROOM -->
+        <div id="joinCard" class="stack-card next-stack-card">
+
+            <div class="card--border-glow">
+
+                <h3 class="font-mono" style="color: var(--secondary); margin-bottom: 1rem;">
+                    [SYS.CONNECT] > Existing Session
+                </h3>
+
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                    Establish connection to an active environment.
+                </p>
+
+                <form action="/" method="POST">
+
+                    <div class="input-group">
+                        <label class="font-mono">
+                            User Identity
+                        </label>
+
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Enter operator alias"
+                            required
+                            autocomplete="off">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="font-mono">
+                            Connection Token
+                        </label>
+
+                        <input
+                            type="text"
+                            name="room_code"
+                            placeholder="e.g. A7X9Q2"
+                            required
+                            autocomplete="off">
+                    </div>
+
+                    <button
+                        type="submit"
+                        name="action"
+                        value="join"
+                        class="btn btn-primary font-mono"
+                        style="text-transform: uppercase;">
+
+                        Execute: Join Room
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+        <div class="session-switcher">
+            <button id="newSessionBtn" class="session-tab active-tab">NEW SESSION</button>
+            <button id="joinSessionBtn" class="session-tab">JOIN SESSION </button> 
+        </div>
+            <!-- <button id="nextCard" class="stack-btn">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button> -->
+        </div>
+    </div>
+</section>
+
+        <% if (error) { %>
+        <div class="error-msg font-mono" style="margin-bottom: 2rem;"><%= error %></div>
+        <% } %>
+
+       
+            <div class="info-grid">
+            <!-- Zero-Log Stats -->
+            <div class="zero-trust-section">
+             <div class="card--border-glow feature-card" style="background: rgba(16, 185, 129, 0.05);">
+            <!-- <div class="card--border-glow col-span-2" style="background: rgba(16, 185, 129, 0.05);"> -->
+                <h3 class="info-card-title font-mono">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 
+                    Zero-Trust Architecture
+                </h3>
+                <p class="info-card-desc">Absolute volatility. Room data exists only in active
+                    memory and undergoes automatic self-destruction upon termination.</p>
+
+                
+                    <div class="trust-stats">
+                    <div style="text-align: center;">
+                        <div class="font-mono" style="font-size: 1.8rem; color: white;"><%= active_rooms %></div>
+                        <div class="font-mono" style="font-size: 0.7rem; color: var(--text-muted);">ACTIVE ENVIRONMENTS
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="font-mono" style="font-size: 1.8rem; color: var(--secondary);">0 B</div>
+                        <div class="font-mono" style="font-size: 0.7rem; color: var(--text-muted);">PERSISTENT STORAGE
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="font-mono" style="font-size: 1.8rem; color: var(--danger);">0</div>
+                        <div class="font-mono" style="font-size: 0.7rem; color: var(--text-muted);">TELEMETRY LOGS</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="feature-grid">
+
+            <!-- Professional Section -->
+            <div class="card--border-glow feature-card">
+
+                
+                    <h3 class="info-card-title font-mono">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#f59e0b;"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2H10a2 2 0 0 0-2 2v16"/></svg>
+                         Enterprise Protocol
+                </h3>
+
+                <p class="info-card-desc">
+                    Engineered for high-stakes communications where privacy is non-negotiable.
+                </p>
+
+            <div
+                style=" display:grid;
+                    grid-template-columns:1fr 1fr;
+                    gap:10px;
+                    margin-bottom:1.5rem;
+                ">
+
+            <div style="
+                background:rgba(0,0,0,0.4);
+                padding:10px;
+                border-radius:8px;
+                border:1px solid rgba(255,255,255,0.05);
+            ">
+              <div class="industry-tag">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16a3 3 0 0 1-6 0"/><path d="M8 16a3 3 0 0 1-6 0"/><path d="M12 3v13"/><path d="M3 7h18"/><path d="M5 7l3 6"/><path d="M19 7l-3 6"/>
+                    </svg><span>LEGAL & LAW</span>
+                </div>
+            </div>
+
+            <div style="
+                background:rgba(0,0,0,0.4);
+                padding:10px;
+                border-radius:8px;
+                border:1px solid rgba(255,255,255,0.05);
+            ">
+                <div class="industry-tag">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/>
+                    </svg><span>TELEMEDICINE</span>
+                </div>
+            </div>
+
+            <div style="
+                background:rgba(0,0,0,0.4);
+                padding:10px;
+                border-radius:8px;
+                border:1px solid rgba(255,255,255,0.05);
+            ">
+                <div class="industry-tag">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/>
+                    </svg><span>ENTERPRISE</span>
+                </div>
+            </div>
+
+            <div style="
+                background:rgba(0,0,0,0.4);
+                padding:10px;
+                border-radius:8px;
+                border:1px solid rgba(255,255,255,0.05);
+            ">
+                <div class="industry-tag">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg><span>JOURNALISM</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="margin-top:auto;">
+            <a
+                href="https://github.com/ArnavPundir22/AuraMeet/blob/main/docs/architecture.md"
+                target="_blank"
+                class="btn font-mono"
+                style="
+                    background:rgba(255,255,255,0.05);
+                    border:1px solid rgba(255,255,255,0.2);
+                    width:100%;
+                    display:block;
+                    text-decoration:none;
+                    box-sizing:border-box;
+                    text-align:center;
+                ">
+                Read Architecture Docs ↗
+            </a>
+        </div>
+
+    </div>
+
+            <!-- Capabilities -->
+            <div class="card--border-glow feature-card">
+                <h3 class="font-mono"
+                    <h3 class="info-card-title font-mono">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                     Capabilities
+                </h3>
+
+                <p class="info-card-desc">
+                   Fully optimized for cross-platform usage with specific hardware boundaries.
+                </p>
+
+                <ul style=" color:var(--text-muted); font-size:rem; line-height:2.2; padding-left:1.2rem; margin-bottom:1.5rem; ">
+                <li>
+                    <strong style="color:var(--primary);">
+                        Desktop Screen Sharing:
+                    </strong>
+                        Broadcast your screen in high definition from any desktop or laptop browser.
+                </li>
+
+                <li>
+                    <strong style="color:var(--primary);">
+                        Mobile Screen Viewing:
+                    </strong>
+                        Mobile users can perfectly view shared screens and participate via camera/microphone, though OS security prevents broadcasting the mobile screen itself.
+                </li>
+
+                <li>
+                    <strong style="color:var(--primary);">
+                        View-Once Media:
+                    </strong>
+                        Send ephemeral images that permanently self-destruct after a single view.
+                </li>
+            </ul>
+
+            </div>
+        </div>
+    </div>
+            <!-- App Promo -->
+    <!-- App Install Modal -->
+    <div id="install-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel" style="max-width: 800px; padding: 2rem; text-align: center;">
+            <h3 class="font-mono" style="color: var(--secondary); margin-bottom: 0.5rem;">[DEVICES] > Local Installation</h3>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 1.5rem auto;">Mount AuraMeet directly onto your hardware for an untethered, full-screen native experience.</p>
+
+            <div id="install-instructions" style="display: none; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); flex: 1; min-width: 200px;">
+                    <strong class="font-mono" style="color: var(--primary);">🍏 iOS (Safari)</strong><br><br>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Tap <b>Share</b> > <b>"Add to Home Screen"</b></span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); flex: 1; min-width: 200px;">
+                    <strong class="font-mono" style="color: var(--primary);">🤖 Android</strong><br><br>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Browser menu > <b>"Add to Home screen"</b></span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); flex: 1; min-width: 200px;">
+                    <strong class="font-mono" style="color: var(--primary);">💻 Desktop</strong><br><br>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Click the install icon in address bar</span>
+                </div>
+            </div>
+
+            <button id="install-btn" class="btn btn-secondary font-mono" style="display: none; margin: 2rem auto 0 auto; width: auto; min-width: 250px; text-transform: uppercase;">Execute Install</button>
+            
+            <div class="modal-actions" style="margin-top: 2rem;">
+                <button id="close-install-modal" class="btn btn-primary" style="width: 100%;" onclick="document.getElementById('install-modal').style.display='none'">Close</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+       
+    </div>
+    <script>
+        // Force unregister service workers to fix cache issues
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+
+        // PWA Install Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const isIos = () => {
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                return /iphone|ipad|ipod/.test(userAgent);
+            };
+
+            // Detect if already installed
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const installCard = document.querySelector('.app-promo-card');
+            const installInstructions = document.getElementById('install-instructions');
+
+            if (isStandalone) {
+                if (installCard) installCard.style.display = 'none';
+                const installNowBtn = document.getElementById('installNowBtn');
+                if (installNowBtn) installNowBtn.style.display = 'none';
+                const mobileInstallBtn = document.querySelector('.mobile-install-btn');
+                if (mobileInstallBtn) mobileInstallBtn.style.display = 'none';
+            } else {
+                // Show manual instructions always as fallback
+                installInstructions.style.display = 'flex';
+            }
+        });
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('install-btn');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            deferredPrompt = null;
+                            installBtn.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    
+    <!-- Cinematic Three.js Logic -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="/static/js/cinematic-intro.js"></script>
+    <script src="/static/js/home-3d-bg.js"></script>
+    <script src="/static/js/card-stack.js"></script>
+    <script src="/static/js/mobile-menu.js"></script>
+    
+</body>
+
+</html>

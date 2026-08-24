@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>
+        <%= room_name %> | AuraMeet
+    </title>
+    <link rel="stylesheet" href="/static/css/style.css?v=17">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script>
+        const ROOM_CODE = "<%= room_code %>";
+        const USERNAME = "<%= username %>";
+        window.TURN_CONFIG = JSON.parse('<%- turnConfig %>');
+    </script>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+</head>
+
+<body class="room-body">
+    <!-- Background for Terminal Aesthetic -->
+    <div class="wireframe-grid"></div>
+
+    <div class="room-container">
+
+        <!-- Main Video Area -->
+        <main class="video-area">
+            <header class="room-header">
+                <h2>
+                    <%= room_name %>
+                        <span class="font-mono" style="font-size:0.6em;color:var(--text-muted);font-weight:normal;margin-left:10px;">
+                        [ID]:
+                        <span class="room-code-wrapper">
+                        <span id="room-code" class="highlight">
+                            <%= room_code %>
+                        </span>
+                        <span id="copy-toast" class="copy-toast">
+                            ✓ Copied
+                        </span>
+                    </span>
+                   </span>
+               </h2>
+               <div class="sdg-badge-container">
+                   <span class="sdg-badge sdg-badge-edu">SDG 4: Quality Edu</span>
+                   <span class="sdg-badge sdg-badge-inc">SDG 10: Reduced Inequality</span>
+               </div>
+                <div class="controls">
+                    <button id="toggle-audio" class="btn btn-icon active" title="Mic On/Off"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" x2="12" y1="19" y2="22"></line>
+                        </svg></button>
+                    <button id="toggle-video" class="btn btn-icon active" title="Cam On/Off"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
+                            </path>
+                            <circle cx="12" cy="13" r="3"></circle>
+                        </svg></button>
+                    <button id="toggle-captions-btn" class="btn btn-icon" title="Live Speech Captions" onclick="window.eduCaptions.toggle()"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            <path d="M8 9h8"></path>
+                            <path d="M8 13h6"></path>
+                        </svg></button>
+                    <button id="toggle-ai-assistant-btn" class="btn btn-icon" title="AI Lecture Assistant & Quiz" onclick="document.getElementById('edu-ai-modal').style.display='flex'"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                            <path d="M12 8v4l3 3"></path>
+                        </svg></button>
+                    <button id="toggle-accessibility-btn" class="btn btn-icon" title="Inclusion & Accessibility Suite" onclick="document.getElementById('edu-accessibility-modal').style.display='flex'"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="m4.93 4.93 4.24 4.24"></path>
+                            <path d="m14.83 9.17 4.24-4.24"></path>
+                            <path d="m14.83 14.83 4.24 4.24"></path>
+                            <path d="m9.17 14.83-4.24 4.24"></path>
+                        </svg></button>
+                    <button id="toggle-air-draw" class="btn btn-icon" title="Air Draw (Beta)"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m12 19 7-7 3 3-7 7-3-3z"></path>
+                            <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                            <path d="m2 2 7.586 7.586"></path>
+                            <circle cx="11" cy="11" r="2"></circle>
+                        </svg></button>
+
+
+                    <div class="reaction-container">
+                        <button id="toggle-reaction" class="btn btn-icon"><svg xmlns="http://www.w3.org/2000/svg"
+                                width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                                <line x1="9" x2="9.01" y1="9" y2="9"></line>
+                                <line x1="15" x2="15.01" y1="9" y2="9"></line>
+                            </svg></button>
+                        <div id="reaction-panel" class="reaction-panel">
+                            <emoji-picker id="reaction-picker" class="dark"></emoji-picker>
+                        </div>
+                    </div>
+
+                    <div class="dropdown-container">
+                        <button id="more-options-btn" class="btn btn-icon" title="More Options">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div id="options-dropdown" class="options-dropdown">
+                            <button id="share-screen" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect width="18" height="14" x="3" y="3" rx="2" ry="2"></rect>
+                                    <path d="M8 21h8"></path>
+                                    <path d="M12 17v4"></path>
+                                    <path d="m8 10 4-4 4 4"></path>
+                                    <path d="M12 6v8"></path>
+                                </svg>
+                                Share Screen
+                            </button>
+                            <button id="invite-btn" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                </svg>
+                                Copy Invite Link
+                            </button>
+                            <button id="theme-btn" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z">
+                                    </path>
+                                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+                                    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+                                    <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                                    <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                                </svg>
+                                Themes
+                            </button>
+                            <button id="edu-ai-dropdown-btn" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                                    <path d="M12 8v4l3 3"></path>
+                                </svg>
+                                AI Lecture Assistant
+                            </button>
+                            <button id="edu-accessibility-dropdown-btn" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="m4.93 4.93 4.24 4.24"></path>
+                                </svg>
+                                Inclusion Suite (SDG 10)
+                            </button>
+                            <button id="info-btn" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 16v-4"></path>
+                                    <path d="M12 8h.01"></path>
+                                </svg>
+                                Tips & Info
+                            </button>
+                            <button id="clear-chat-mobile" class="dropdown-item">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"      
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M8 6V4h8v2"></path>
+                                    <path d="M19 6l-1 14H6L5 6"></path>
+                                </svg>
+                                Clear Messages
+                            </button>
+                        </div>
+                    </div>
+                    <!-- </button>
+                    <button id="leave-room" class="btn btn-danger">Leave</button> -->
+                    <button id="leave-room" class="btn btn-danger">
+                        <span class="leave-text">Leave</span>
+                        <svg class="leave-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <div id="video-grid" class="video-grid">
+                <div class="video-wrapper local-wrapper">
+                    <video id="local-video" autoplay muted playsinline></video>
+                    <canvas id="air-draw-canvas" class="air-draw-canvas"></canvas>
+                    <div id="air-draw-cursor" class="air-draw-cursor" style="display: none;"></div>
+                    <div id="air-draw-controls" class="air-draw-controls" style="display: none;">
+                        <div class="color-options">
+                            <button class="color-btn active" data-color="#10b981" style="background-color: #10b981;"
+                                title="Green"></button>
+                            <button class="color-btn" data-color="#ef4444" style="background-color: #ef4444;"
+                                title="Red"></button>
+                            <button class="color-btn" data-color="#3b82f6" style="background-color: #3b82f6;"
+                                title="Blue"></button>
+                            <button class="color-btn" data-color="#eab308" style="background-color: #eab308;"
+                                title="Yellow"></button>
+                            <button class="color-btn" data-color="#ec4899" style="background-color: #ec4899;"
+                                title="Pink"></button>
+                            <button class="color-btn rainbow-btn" data-color="rainbow" title="Multicolor"></button>
+                        </div>
+                        <div class="stroke-options">
+                            <label for="stroke-width" class="stroke-label">Thickness</label>
+                            <input type="range" id="stroke-width" min="2" max="20" value="6">
+                        </div>
+                    </div>
+                    <div class="avatar-fallback"><%= username.charAt(0).toUpperCase() %></div>
+                    <div class="mic-indicator">
+                        <svg class="mic-on-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" x2="12" y1="19" y2="22"></line>
+                        </svg>
+                        <svg class="mic-off-icon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20"
+                            height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="2" x2="22" y1="2" y2="22"></line>
+                            <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"></path>
+                            <path d="M5 10v2a7 7 0 0 0 12 5"></path>
+                            <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33"></path>
+                            <path d="M9 9v3a3 3 0 0 0 5.12 2.12"></path>
+                            <line x1="12" x2="12" y1="19" y2="22"></line>
+                        </svg>
+                    </div>
+                    <span class="video-label"><%= username %> (You)</span>
+                    <button class="maximize-btn btn-icon" title="Maximize Video">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Remote videos will be injected here -->
+            </div>
+        </main>
+
+        <!-- Sidebar Chat -->
+        <aside class="chat-sidebar glass-panel-light">
+            <div class="chat-header">
+                <h3>
+                    <%= room_name %>
+                </h3>
+                <span class="mobile-room-code font-mono">
+                    [ID]: <span class="highlight room-code" id="room-code" title="Copy Room Code"> <%= room_code %> </span>
+                </span>
+               <button id="clear-chat-btn" class="btn btn-icon" title="Clear Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256"><path d="M235.5,216.81c-22.56-11-35.5-34.58-35.5-64.8V134.73a15.94,15.94,0,0,0-10.09-14.87L165,110a8,8,0,0,1-4.48-10.34l21.32-53a28,28,0,0,0-16.1-37,28.14,28.14,0,0,0-35.82,16,.61.61,0,0,0,0,.12L108.9,79a8,8,0,0,1-10.37,4.49L73.11,73.14A15.89,15.89,0,0,0,55.74,76.8C34.68,98.45,24,123.75,24,152a111.45,111.45,0,0,0,31.18,77.53A8,8,0,0,0,61,232H232a8,8,0,0,0,3.5-15.19ZM67.14,88l25.41,10.3a24,24,0,0,0,31.23-13.45l21-53c2.56-6.11,9.47-9.27,15.43-7a12,12,0,0,1,6.88,15.92L145.69,93.76a24,24,0,0,0,13.43,31.14L184,134.73V152c0,.33,0,.66,0,1L55.77,101.71A108.84,108.84,0,0,1,67.14,88Zm48,128a87.53,87.53,0,0,1-24.34-42,8,8,0,0,0-15.49,4,105.16,105.16,0,0,0,18.36,38H64.44A95.54,95.54,0,0,1,40,152a85.9,85.9,0,0,1,7.73-36.29l137.8,55.12c3,18,10.56,33.48,21.89,45.16Z"></path></svg>
+
+                </button>
+                <button id="close-chat-btn" class="btn btn-icon btn-close-chat"
+                    style="display: none; width: 32px; height: 32px;" title="Close Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="zero-log-banner font-mono" style="font-size: 0.75rem; text-transform: uppercase;">
+                <span>🔒 [SYS.SECURE] Zero-Log Mode Active.</span>
+            </div>
+
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be injected here -->
+                <div id="typing-indicator" class="typing-indicator">
+                    <span class="typing-text"></span>
+                    <div class="dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reply-preview" class="reply-preview" style="display: none;">
+                <div class="reply-content">
+                    <span id="reply-preview-user" class="reply-user"></span>
+                    <span id="reply-preview-text" class="reply-text"></span>
+                </div>
+                <button id="cancel-reply-btn" class="btn btn-icon cancel-reply" title="Cancel Reply">&times;</button>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <button id="image-btn" class="btn btn-icon" title="Send View-Once Image"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                        <circle cx="9" cy="9" r="2"></circle>
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                    </svg></button>
+                <button id="audio-btn" class="btn btn-icon" title="Hold to Record Audio"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" x2="12" y1="19" y2="22"></line>
+                    </svg></button>
+                <div class="chat-input-wrapper">
+                    <textarea id="chat-input" placeholder="Type a message..." autocomplete="off" rows="1"></textarea>
+                    <button id="chat-emoji-btn" class="chat-emoji-btn-inner" title="Insert Emoji">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                            <line x1="9" x2="9.01" y1="9" y2="9"></line>
+                            <line x1="15" x2="15.01" y1="9" y2="9"></line>
+                        </svg>
+                    </button>
+                    <div id="chat-emoji-panel"
+                        style="display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 10px; z-index: 1000;">
+                        <emoji-picker id="chat-emoji-picker" class="dark"></emoji-picker>
+                    </div>
+                </div>
+                <button id="send-btn" class="btn btn-primary btn-icon" title="Send"
+                    style="width: 40px; height: 40px; padding: 0; flex-shrink: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right: 2px; margin-top: 2px;">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Floating Chat Toggle -->
+    <button id="floating-chat-toggle" class="btn btn-icon" title="Open Chat" style="position: fixed;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span id="chat-notification-badge" class="notification-badge" style="display: none;">0</span>
+    </button>
+
+    <!-- View-Once Image Viewer -->
+    <div id="image-viewer-overlay" class="modal-overlay">
+        <div class="image-viewer-content">
+            <span class="close-viewer" id="close-viewer">&times;</span>
+            <img id="viewer-img" src="" alt="View Once Image" draggable="false" oncontextmenu="return false;">
+        </div>
+    </div>
+
+    <!-- Purge Overlay -->
+    <div id="purge-overlay" class="purge-overlay">
+        <div class="purge-content">
+            <div class="glitch-spinner"></div>
+            <h2>Purging room data...</h2>
+            <p>Destroying temporary session.</p>
+        </div>
+    </div>
+
+    <!-- Theme Modal -->
+    <div id="info-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel" style="max-width: 500px; padding: 2rem;">
+            <h3
+                style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--primary);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4"></path>
+                    <path d="M12 8h.01"></path>
+                </svg>
+                App Tips & Info
+            </h3>
+            <ul class="tips-list">
+                <li>
+                    <span class="tip-icon">🖥️</span>
+                    <div class="tip-text">
+                        <strong>Screen Sharing</strong>
+                        <p>To share your screen, please connect using a Desktop or Laptop browser. Mobile browsers
+                            inherently restrict screen capture for web apps.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="tip-icon">🔒</span>
+                    <div class="tip-text">
+                        <strong>Zero-Log Security</strong>
+                        <p>All messages and media are strictly ephemeral. Once you leave the room, everything is
+                            permanently destroyed. There are no databases.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="tip-icon">🖼️</span>
+                    <div class="tip-text">
+                        <strong>Ephemeral Media</strong>
+                        <p>Images sent in chat can only be viewed once before they self-destruct (Snapchat-style).</p>
+                    </div>
+                </li>
+            </ul>
+            <div class="modal-actions" style="margin-top: 2rem;">
+                <button id="close-info" class="btn btn-primary" style="width: 100%;">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="theme-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel">
+
+            <h3>🎨 Personalize AuraMeet</h3>
+            <p>Choose how your AuraMeet looks.</p>
+
+            <div class="theme-list">
+                <button class="theme-card theme-option" data-theme="aurora"> ✓ Aurora </button>
+                <button class="theme-card theme-option" data-theme="midnightRomance"> 💖 Midnight Romance </button>
+                <button class="theme-card theme-option" data-theme="sunsetGlow"> 🌅 Sunset Glow</button>
+                <button class="theme-card theme-option" data-theme="cyberNeon"> ⚡ Cyber Neon </button>
+                <button class="theme-card theme-option" data-theme="coffeeHouse"> ☕ Coffee House </button>
+                <button class="theme-card theme-option" data-theme="minimalBlack"> 🖤 Minimal Black </button>
+            </div>
+            <div class="modal-actions">
+                <button id="close-theme-modal" class="btn btn-danger"> Close </button>
+            </div>
+        </div>
+    </div>
+    <!-- Clear Chat Modal -->
+    <div id="clear-chat-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel" style="max-width:420px;">
+
+            <h3 style="display:flex;align-items:center;gap:10px;color:var(--primary);margin-bottom:1rem;">
+                🧹 Clear Chat
+            </h3>
+
+            <p style="color:var(--text-muted);line-height:1.6;margin-bottom:1.8rem;">
+                This will clear all messages on <strong>your device only.</strong><br>
+                Other participants will still see their chat.
+            </p>
+
+            <div class="modal-actions">
+                <button id="cancel-clear-chat" class="btn btn-secondary">
+                    Cancel
+                </button>
+
+                <button id="confirm-clear-chat" class="btn btn-danger">
+                    Clear
+             </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Captions Bar Overlay -->
+    <div id="edu-captions-bar" class="hidden">
+        <div class="edu-captions-header">
+            <span style="color:#34d399;font-weight:bold;font-size:0.85rem;display:flex;align-items:center;gap:4px;">
+                ✨ Live Speech Captions
+            </span>
+            <select id="edu-caption-lang" onchange="window.eduCaptions.setLanguage(this.value)" style="background:#1e293b;color:#e2e8f0;border:1px solid #475569;padding:2px 8px;border-radius:6px;font-size:0.75rem;">
+                <option value="en-US">English (US)</option>
+                <option value="hi-IN">Hindi (हिंदी)</option>
+                <option value="es-ES">Spanish (Español)</option>
+                <option value="fr-FR">French (Français)</option>
+                <option value="de-DE">German (Deutsch)</option>
+            </select>
+        </div>
+        <div id="edu-caption-text">
+            <p class="caption-line caption-interim">Listening... Speak to generate captions live.</p>
+        </div>
+    </div>
+
+    <!-- AI Lecture Assistant Modal -->
+    <div id="edu-ai-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel" style="max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto; margin: auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3 style="color:#a78bfa;display:flex;align-items:center;gap:8px;">
+                    🤖 AuraMeet AI Lecture Assistant
+                </h3>
+                <button onclick="document.getElementById('edu-ai-modal').style.display='none'" class="btn btn-sm btn-secondary">✕</button>
+            </div>
+
+            <div style="display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;">
+                <button onclick="window.eduAssistant.loadSample('ai')" class="btn btn-sm btn-secondary">Preset: AI & Neural Nets</button>
+                <button onclick="window.eduAssistant.loadSample('climate')" class="btn btn-sm btn-secondary">Preset: SDG 13 Climate</button>
+                <button onclick="window.eduAssistant.exportMarkdown()" class="btn btn-sm btn-primary">📥 Export Notes (MD)</button>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.4);padding:12px;border-radius:10px;margin-bottom:1rem;border:1px solid rgba(255,255,255,0.1);">
+                <span style="font-size:0.75rem;color:#a78bfa;font-family:monospace;">TOPIC SUMMARY</span>
+                <h4 id="edu-ai-title" style="color:#fff;margin:4px 0;">Loading...</h4>
+                <p id="edu-ai-summary" style="font-size:0.85rem;color:#cbd5e1;line-height:1.5;"></p>
+                <button onclick="window.eduAssistant.speakSummary()" class="btn btn-sm btn-secondary" style="margin-top:8px;">🔊 Voice Readout</button>
+            </div>
+
+            <div style="margin-bottom:1rem;">
+                <h5 style="font-size:0.8rem;color:#94a3b8;margin-bottom:6px;">ACTIONABLE KEY TAKEAWAYS</h5>
+                <div id="edu-ai-takeaways"></div>
+            </div>
+
+            <div>
+                <h5 style="font-size:0.8rem;color:#94a3b8;margin-bottom:6px;">INTERACTIVE 3-QUESTION CHECK</h5>
+                <div id="edu-ai-quiz"></div>
+                <div id="edu-quiz-result" style="display:none;background:rgba(16,185,129,0.2);color:#34d399;padding:8px 12px;border-radius:8px;font-weight:bold;margin-top:8px;"></div>
+                <button onclick="window.eduAssistant.checkScore()" class="btn btn-primary" style="width:100%;margin-top:10px;">Check Quiz Results</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inclusion & Accessibility Suite Modal -->
+    <div id="edu-accessibility-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content glass-panel" style="max-width: 480px; width: 90%; max-height: 85vh; overflow-y: auto; margin: auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
+                <h3 style="color:#34d399;display:flex;align-items:center;gap:8px;">
+                    ♿ Inclusion Suite (SDG 10)
+                </h3>
+                <button onclick="document.getElementById('edu-accessibility-modal').style.display='none'" class="btn btn-sm btn-secondary">✕</button>
+            </div>
+
+            <div style="margin-bottom:1.2rem;">
+                <label style="font-size:0.8rem;color:#cbd5e1;display:block;margin-bottom:6px;">Text Size Scaling</label>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="window.eduAccessibility.setFontSize('small')" class="btn btn-sm btn-secondary" style="flex:1;">Small</button>
+                    <button onclick="window.eduAccessibility.setFontSize('medium')" class="btn btn-sm btn-secondary" style="flex:1;">Medium</button>
+                    <button onclick="window.eduAccessibility.setFontSize('large')" class="btn btn-sm btn-secondary" style="flex:1;">Large</button>
+                    <button onclick="window.eduAccessibility.setFontSize('xlarge')" class="btn btn-sm btn-secondary" style="flex:1;">XL</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:1.2rem;">
+                <label style="font-size:0.8rem;color:#cbd5e1;display:block;margin-bottom:6px;">High Contrast Mode</label>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="window.eduAccessibility.setThemeMode('default')" class="btn btn-sm btn-secondary" style="flex:1;">Default</button>
+                    <button onclick="window.eduAccessibility.setThemeMode('oled')" class="btn btn-sm btn-secondary" style="flex:1;">OLED Black</button>
+                    <button onclick="window.eduAccessibility.setThemeMode('yellow')" class="btn btn-sm btn-secondary" style="flex:1;">Hi-Vis Yellow</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Engine -->
+    <script src="/static/js/themes.js"></script>
+
+    <!-- WebRTC and Chat Logic -->
+    <script src="/static/js/room.js?v=11"></script>
+    <script src="/static/js/air-draw.js"></script>
+
+    <!-- AuraMeet Edu Hackathon Scripts -->
+    <script src="/static/js/edu-captions.js"></script>
+    <script src="/static/js/edu-assistant.js"></script>
+    <script src="/static/js/edu-accessibility.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+
+</body>
+
+</html>
